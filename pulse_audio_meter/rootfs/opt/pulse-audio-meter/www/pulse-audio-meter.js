@@ -1,4 +1,12 @@
 class PulseAudioMeter extends HTMLElement {
+  set hass(hass) {
+    this._hass = hass;
+  }
+
+  get hass() {
+    return this._hass;
+  }
+
   setConfig(config) {
     this.config = config || {};
 
@@ -267,21 +275,10 @@ class PulseAudioMeter extends HTMLElement {
 
   async updateState() {
     try {
-      const response = await fetch(
-        this.stateUrl,
-        {
-          method: 'GET',
-          cache: 'no-store'
-        }
+      const state = await this._hass.callApi(
+        'GET',
+        this.stateUrl
       );
-
-      if (!response.ok) {
-        throw new Error(
-          `HTTP ${response.status}`
-        );
-      }
-
-      const state = await response.json();
 
       this.updateMeter(
         'ir',
@@ -428,27 +425,14 @@ class PulseAudioMeter extends HTMLElement {
 
   async setVolume(target, volume) {
     try {
-      const response =
-        await fetch(
-          this.controlUrl,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
-            body: JSON.stringify({
-              target,
-              volume
-            })
-          }
-        );
-
-      if (!response.ok) {
-        throw new Error(
-          `HTTP ${response.status}`
-        );
-      }
+      await this._hass.callApi(
+        'POST',
+        this.controlUrl,
+        {
+          target,
+          volume
+        }
+      );
 
       await this.updateState();
 
@@ -462,27 +446,14 @@ class PulseAudioMeter extends HTMLElement {
 
   async setMute(target, mute) {
     try {
-      const response =
-        await fetch(
-          this.controlUrl,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
-            body: JSON.stringify({
-              target,
-              mute
-            })
-          }
-        );
-
-      if (!response.ok) {
-        throw new Error(
-          `HTTP ${response.status}`
-        );
-      }
+      await this._hass.callApi(
+        'POST',
+        this.controlUrl,
+        {
+          target,
+          mute
+        }
+      );
 
       await this.updateState();
 

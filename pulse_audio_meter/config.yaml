@@ -1,5 +1,5 @@
 name: PulseAudio Meter
-version: "1.0.5"
+version: "1.0.6"
 slug: pulse_audio_meter
 description: Live PulseAudio input/output meter with PulseAudio volume and mute controls
 arch:
