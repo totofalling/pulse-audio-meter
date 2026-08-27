@@ -216,8 +216,8 @@ class PulseAudioMeter extends HTMLElement {
       </ha-card>
     `;
 
-    this.stateUrl = '/api/pulse_audio_meter/state';
-    this.controlUrl = '/api/pulse_audio_meter/control';
+    this.stateUrl = 'pulse_audio_meter/state';
+    this.controlUrl = 'pulse_audio_meter/control';
 
     this.timer = null;
     this.busy = false;
