@@ -1,7 +1,7 @@
 {
   "domain": "pulse_audio_meter",
   "name": "PulseAudio Meter",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "documentation": "https://github.com/totofalling/pulse-audio-meter",
   "requirements": [],
   "codeowners": [],

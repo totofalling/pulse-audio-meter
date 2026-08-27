@@ -30,6 +30,9 @@ class PulseAudioMeterStateView(HomeAssistantView):
     name = "api:pulse_audio_meter:state"
     requires_auth = True
 
+    def __init__(self, hass):
+        self.hass = hass
+
     async def get(self, request):
         """Return current PulseAudio state."""
         session = async_get_clientsession(self.hass)
@@ -64,6 +67,9 @@ class PulseAudioMeterControlView(HomeAssistantView):
     url = "/api/pulse_audio_meter/control"
     name = "api:pulse_audio_meter:control"
     requires_auth = True
+
+    def __init__(self, hass):
+        self.hass = hass
 
     async def post(self, request):
         """Send a control command to PulseAudio Meter."""
@@ -103,11 +109,11 @@ async def async_setup(
     """Set up PulseAudio Meter."""
 
     hass.http.register_view(
-        PulseAudioMeterStateView,
+        PulseAudioMeterStateView(hass),
     )
 
     hass.http.register_view(
-        PulseAudioMeterControlView,
+        PulseAudioMeterControlView(hass),
     )
 
     return True
@@ -158,7 +164,7 @@ async def async_setup_entry(
             resources = getattr(lovelace, "resources", None)
 
             if isinstance(resources, ResourceStorageCollection):
-                resource_url = "/local/pulse-audio-meter.js"
+                resource_url = "/local/pulse-audio-meter.js?v=1.0.5"
 
                 if not any(
                     getattr(item, "url", None) == resource_url
