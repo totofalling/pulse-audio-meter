@@ -164,7 +164,7 @@ async def async_setup_entry(
             resources = getattr(lovelace, "resources", None)
 
             if isinstance(resources, ResourceStorageCollection):
-                resource_url = "/local/pulse-audio-meter.js"
+                resource_url = "/local/pulse-audio-meter.js?v=1.0.5"
 
                 if not any(
                     getattr(item, "url", None) == resource_url
