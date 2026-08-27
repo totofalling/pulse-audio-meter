@@ -1,2 +1,19 @@
 #!/usr/bin/with-contenv bashio
+
+CONFIG="/homeassistant"
+SOURCE="/opt/pulse-audio-meter"
+
+echo "=== PulseAudio Meter starting ==="
+
+mkdir -p "$CONFIG/custom_components/pulse_audio_meter"
+cp -rf "$SOURCE/custom_components/pulse_audio_meter/"* \
+      "$CONFIG/custom_components/pulse_audio_meter/"
+
+mkdir -p "$CONFIG/www"
+cp -f "$SOURCE/www/pulse-audio-meter.js" \
+      "$CONFIG/www/pulse-audio-meter.js"
+
+echo "=== PulseAudio Meter integration installed ==="
+echo "=== PulseAudio Meter card installed ==="
+
 exec python3 /usr/bin/server.py
