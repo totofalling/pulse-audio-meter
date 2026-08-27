@@ -58,38 +58,50 @@ async def async_setup_entry(
         entry,
         PLATFORMS,
     )
-    # Register the Lovelace card resource.
+    # Register the Lovelace card automatically.
     try:
+        from homeassistant.components.lovelace import DOMAIN as LOVELACE_DOMAIN
         from homeassistant.components.lovelace.resources import (
             ResourceStorageCollection,
         )
 
-        resources = hass.data.get("lovelace", {}).get("resources")
+        lovelace = hass.data.get(LOVELACE_DOMAIN)
 
-        if isinstance(resources, ResourceStorageCollection):
-            resource_url = "/local/pulse-audio-meter.js"
+        if lovelace is not None:
+            resources = getattr(lovelace, "resources", None)
 
-            if not any(
-                getattr(item, "url", None) == resource_url
-                for item in resources.async_items()
-            ):
-                await resources.async_create_item(
-                    {
-                        "res_type": "module",
-                        "url": resource_url,
-                    }
+            if isinstance(resources, ResourceStorageCollection):
+                resource_url = "/local/pulse-audio-meter.js"
+
+                if not any(
+                    getattr(item, "url", None) == resource_url
+                    for item in resources.async_items()
+                ):
+                    await resources.async_create_item(
+                        {
+                            "res_type": "module",
+                            "url": resource_url,
+                        }
+                    )
+
+                    _LOGGER.info(
+                        "PulseAudio Meter Lovelace resource registered"
+                    )
+            else:
+                _LOGGER.warning(
+                    "Lovelace resources collection not available"
                 )
-
-                _LOGGER.info(
-                    "PulseAudio Meter Lovelace resource registered"
-                )
+        else:
+            _LOGGER.warning(
+                "Lovelace component not available"
+            )
 
     except Exception:
         _LOGGER.exception(
             "Unable to register PulseAudio Meter Lovelace resource"
         )
-    return True
 
+    return True
 
 async def async_unload_entry(
     hass: HomeAssistant,
