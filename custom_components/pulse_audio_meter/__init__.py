@@ -1,38 +1,64 @@
-from __future__ import annotations
 import logging
-import asyncio
 from datetime import timedelta
-import aiohttp
+
+from aiohttp import ClientSession
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 DOMAIN = "pulse_audio_meter"
-API = "http://homeassistant.local:8765"
-PLATFORMS = ["sensor", "number", "switch"]
+API = "http://127.0.0.1:8765"
+
+PLATFORMS = [
+    "sensor",
+    "number",
+    "switch",
+]
+
+_LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up PulseAudio Meter."""
     return True
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    session = aiohttp.ClientSession()
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> bool:
+    """Set up PulseAudio Meter."""
+    session = ClientSession()
+
     async def update():
-        try:
-            async with session.get(f"{API}/state", timeout=aiohttp.ClientTimeout(total=2)) as r:
-                if r.status != 200:
-                    raise UpdateFailed(f"HTTP {r.status}")
-                return await r.json()
-        except Exception as e:
-            raise UpdateFailed(str(e)) from e
+        """Get current PulseAudio state."""
+        async with session.get(
+            f"{API}/state",
+            timeout=5,
+        ) as response:
+            response.raise_for_status()
+            return await response.json()
+
     coordinator = DataUpdateCoordinator(
-        hass, logging.getLogger(__name__), name="PulseAudio Meter", update_method=update,
+        hass,
+        _LOGGER,
+        name="PulseAudio Meter",
+        update_method=update,
         update_interval=timedelta(seconds=0.5),
     )
-    await coordinator.async_config_entry_first_refresh()
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = (coordinator, session)
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Register the Lovelace card automatically.
+    await coordinator.async_config_entry_first_refresh()
+
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = (
+        coordinator,
+        session,
+    )
+
+    await hass.config_entries.async_forward_entry_setups(
+        entry,
+        PLATFORMS,
+    )
+    # Register the Lovelace card resource.
     try:
         from homeassistant.components.lovelace.resources import (
             ResourceStorageCollection,
@@ -53,15 +79,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                         "url": resource_url,
                     }
                 )
+
+                _LOGGER.info(
+                    "PulseAudio Meter Lovelace resource registered"
+                )
+
     except Exception:
-        logging.getLogger(__name__).exception(
+        _LOGGER.exception(
             "Unable to register PulseAudio Meter Lovelace resource"
         )
     return True
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    data = hass.data[DOMAIN].pop(entry.entry_id)
-    coordinator, session = data
-    await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+async def async_unload_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> bool:
+    """Unload PulseAudio Meter."""
+    coordinator, session = hass.data[DOMAIN].pop(entry.entry_id)
+
+    unload_ok = await hass.config_entries.async_unload_platforms(
+        entry,
+        PLATFORMS,
+    )
+
     await session.close()
-    return True
+
+    return unload_ok
