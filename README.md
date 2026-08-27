@@ -11,8 +11,6 @@ Real-time PulseAudio input/output monitoring and volume control.
 - Input mute/unmute
 - Output mute/unmute
 - Lovelace dashboard card
-- No MQTT required
-- Does not modify linux_voice_assistant
 
 ## Installation
 
@@ -22,13 +20,6 @@ https://github.com/totofalling/pulse-audio-meter
 
 Install the PulseAudio Meter app and start it.
 
-Then install the custom integration from the custom_components directory.
-
-Add the Lovelace resource:
-
-/local/pulse-audio-meter.js
-
-Resource type: JavaScript Module
 
 ## Lovelace Card
 
