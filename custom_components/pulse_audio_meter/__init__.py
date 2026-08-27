@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 DOMAIN = "pulse_audio_meter"
-API = "http://local-pulse-audio-meter:8765"
+API = "http://homeassistant.local:8765"
 PLATFORMS = ["sensor", "number", "switch"]
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
